@@ -17,6 +17,19 @@ if (root.classList.contains('motion') && 'IntersectionObserver' in window) {
       groups.set(g, n + 1);
     }
     el.classList.add('rv-pending');
+    // section headings set word by word, like the headline
+    if (el.matches('h2.display') && el.children.length === 0) {
+      const words = (el.textContent ?? '').trim().split(/\s+/);
+      el.textContent = '';
+      words.forEach((w, i) => {
+        const span = document.createElement('span');
+        span.className = 'rw';
+        span.style.setProperty('--i', String(i));
+        span.textContent = w;
+        el.append(span, i < words.length - 1 ? ' ' : '');
+      });
+      el.classList.add('rv-words');
+    }
   }
 
   const io = new IntersectionObserver(
@@ -27,7 +40,8 @@ if (root.classList.contains('motion') && 'IntersectionObserver' in window) {
         el.classList.add('rv-in');
         el.classList.remove('rv-pending');
         io.unobserve(el);
-        el.addEventListener('transitionend', () => el.classList.remove('rv-in'), { once: true });
+        if (!el.classList.contains('rv-words'))
+          el.addEventListener('transitionend', () => el.classList.remove('rv-in'), { once: true });
       }
     },
     { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },

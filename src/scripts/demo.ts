@@ -61,7 +61,7 @@ if (demo) {
   // Drag: the ribbon follows the pointer 1:1 and readings swap instantly at
   // each midpoint. On release the ribbon snaps and the reading resolves once.
   // A mostly vertical gesture is left to the page so phones can still scroll.
-  type Drag = { id: number; type: string; x0: number; y0: number; start: number; active: boolean; width: number; left: number };
+  type Drag = { id: number; type: string; x0: number; y0: number; start: number; active: boolean; width: number; left: number; local: number };
   let drag: Drag | null = null;
   let suppressClick = false;
 
@@ -75,7 +75,7 @@ if (demo) {
     if (e.button !== 0) return;
     suppressClick = false;
     const r = rail.getBoundingClientRect();
-    drag = { id: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY, start: current, active: false, width: r.width, left: r.left };
+    drag = { id: e.pointerId, type: e.pointerType, x0: e.clientX, y0: e.clientY, start: current, active: false, width: r.width, left: r.left, local: rail.offsetWidth || r.width };
   });
 
   track.addEventListener('dragstart', (e) => e.preventDefault());
@@ -95,7 +95,8 @@ if (demo) {
     }
     const f = clamp((e.clientX - drag.left) / drag.width, 0, 0.9999);
     const lo = 0.5 / total;
-    carriage.style.transform = `translateX(${(clamp(f, lo, 1 - lo) - lo) * drag.width}px)`;
+    // in the track's own units, so it keeps up while the sheet is scaled (scripts/sheets.ts)
+    carriage.style.transform = `translateX(${(clamp(f, lo, 1 - lo) - lo) * drag.local}px)`;
     select(Math.floor(f * total) + 1);
   });
 

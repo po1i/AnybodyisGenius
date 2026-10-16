@@ -3,7 +3,7 @@ import Signup from './Signup.astro';
 import ArchFigure from './ArchFigure.astro';
 import { site } from '../data/site';
 ---
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero" aria-labelledby="hero-title" data-sheet="hero">
   <div class="grid">
     <h1 id="hero-title" class="display h1 c-wide hero-title">
       {site.headline.split(' ').map((w, i, all) => (

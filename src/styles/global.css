@@ -177,6 +177,52 @@ html.motion .rv-in {
   transition-delay: calc(var(--rv-i, 0) * 90ms);
 }
 
+/* section headings set word by word as their scene arrives (scripts/reveal.ts) */
+html.motion .rv-words.rv-pending { opacity: 1; transform: none; }
+html.motion .rv-words .rw { display: inline-block; }
+html.motion .rv-words.rv-pending .rw { opacity: 0; transform: translateY(0.34em) rotate(0.6deg); }
+html.motion .rv-words.rv-in .rw { animation: aig-set 1.1s var(--resolve) both; animation-delay: calc(var(--i, 0) * 70ms); }
+@keyframes aig-set { from { opacity: 0; transform: translateY(0.34em) rotate(0.6deg); } }
+
+/* one stage (scripts/sheets.ts): each section is a sheet that pins, and the
+   next one slides over it. Tall sheets pin once their end is on screen. */
+@media screen {
+  html.sheets [data-sheet] {
+    position: relative;
+    isolation: isolate;
+    background: var(--paper);
+  }
+  html.sheets [data-sheet]:not([data-sheet='final']) {
+    position: sticky;
+    top: min(0px, calc(100svh - var(--h, 100svh)));
+  }
+  /* the shadow along the top edge of a sheet while it covers the one before */
+  html.sheets .sheet-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 36px;
+    background: linear-gradient(to top, rgb(28 27 24 / 0.16), rgb(28 27 24 / 0.05) 35%, rgb(28 27 24 / 0));
+    opacity: 0;
+    pointer-events: none;
+  }
+  html.sheets .sheet-shade {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: var(--ink);
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* nothing animates under a sheet that is fully covered */
+  html.sheets [data-covered] * { animation-play-state: paused !important; }
+}
+/* print the plain page, whatever state the sheets were in on screen */
+@media print {
+  html.sheets [data-sheet] { transform: none !important; opacity: 1 !important; }
+}
+
 /* sections */
 .section { padding-block: var(--section); }
 .section-rule { grid-column: full; height: 1px; background: var(--hairline); margin-bottom: calc(var(--u) * 6); }

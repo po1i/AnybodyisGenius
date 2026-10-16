@@ -19,10 +19,11 @@ if (pill && dialog && typeof dialog.showModal === 'function') {
 
   // ---- when the pill shows -------------------------------------------------
   let pastHero = false;
+  let heroCovered = false; // the hero stays pinned under later sections (scripts/sheets.ts)
   let nearFinal = false;
   const done = () => document.querySelector('[data-signup-box][data-state="done"]') !== null;
   const update = () => {
-    const show = pastHero && !nearFinal && !done() && !dialog.open;
+    const show = (pastHero || heroCovered) && !nearFinal && !done() && !dialog.open;
     pill.classList.toggle('is-shown', show);
     pill.tabIndex = show ? 0 : -1;
     pill.setAttribute('aria-hidden', String(!show));
@@ -39,6 +40,10 @@ if (pill && dialog && typeof dialog.showModal === 'function') {
         update();
       }, { rootMargin: '0px 0px 15% 0px' }).observe(finalBox);
   }
+  window.addEventListener('aig:sheets', (e) => {
+    heroCovered = (e as CustomEvent<{ covered: string[] }>).detail.covered.includes('hero');
+    update();
+  });
   // a signup anywhere retires the pill
   new MutationObserver(update).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-state'] });
   update();
@@ -81,7 +86,7 @@ if (pill && dialog && typeof dialog.showModal === 'function') {
       update();
       if (pill.classList.contains('is-shown')) pill.focus({ preventScroll: true });
     };
-    const pillWillShow = pastHero && !nearFinal && !done();
+    const pillWillShow = (pastHero || heroCovered) && !nearFinal && !done();
     if (how === 'morph' && canMorph() && pillWillShow && !isPhone()) {
       dialog.classList.add('vt-morph');
       document.documentElement.classList.add('vt-join');

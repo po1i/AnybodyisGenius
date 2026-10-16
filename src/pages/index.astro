@@ -9,6 +9,7 @@ import FAQ from '../components/FAQ.astro';
 import FinalSignup from '../components/FinalSignup.astro';
 import Colophon from '../components/Colophon.astro';
 import JoinDialog from '../components/JoinDialog.astro';
+import SceneIndex from '../components/SceneIndex.astro';
 ---
 
 <Base>
@@ -23,10 +24,12 @@ import JoinDialog from '../components/JoinDialog.astro';
   </main>
   <Colophon />
   <JoinDialog />
+  <SceneIndex />
   <script>
     import '../scripts/signup/signup';
     import '../scripts/fig2';
     import '../scripts/reveal';
+    import '../scripts/sheets';
     import '../scripts/join';
     import '../scripts/smooth';
     import { startArchimedes } from '../scripts/archimedes';

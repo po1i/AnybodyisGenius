@@ -64,11 +64,11 @@ const baseCss = `.demo[data-lvl] .reading,.demo[data-lvl] .side-level{visibility
 const stateCss = baseCss + '\n' + states.join('\n');
 ---
 
-<section class="demo-section" aria-labelledby="demo-q">
+<section class="demo-section" aria-labelledby="demo-q" data-sheet="demo">
   <div class="plate">
     <div class="demo grid" data-demo>
       <p class="mark smallcaps fig-mark">Fig. 1</p>
-      <h2 id="demo-q" class="display h2 c-text demo-q">{question}</h2>
+      <h2 id="demo-q" class="display h2 c-text demo-q" data-reveal>{question}</h2>
       <p class="note c-note demo-intro">
         One question at five levels. Each reading is about the same length, so what changes is depth.
       </p>

@@ -1,0 +1,90 @@
+---
+// The scene index in the left margin (wide screens, with motion only; shown by
+// scripts/sheets.ts). Each mark is a plain link to its section heading.
+const scenes = [
+  { href: '#hero-title', label: 'Top' },
+  { href: '#demo-q', label: 'Fig. 1' },
+  { href: '#how-title', label: 'How it teaches' },
+  { href: '#mission-title', label: 'Smarter' },
+  { href: '#faq-title', label: 'Questions' },
+  { href: '#final-title', label: 'Join' },
+];
+---
+<nav class="scenes ui" aria-label="Sections" data-scenes hidden>
+  <ol>
+    {scenes.map((s) => (
+      <li>
+        <a href={s.href}>
+          <span class="tick" aria-hidden="true"></span>
+          <span class="lbl">{s.label}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  .scenes { display: none; }
+  @media screen and (min-width: 1200px) {
+    :global(html.sheets) .scenes {
+      display: block;
+      position: fixed;
+      z-index: 15;
+      top: 50%;
+      left: max(14px, calc((100vw - 1200px) / 2 - 104px));
+      translate: 0 -50%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s var(--depart);
+    }
+    :global(html.sheets) .scenes.is-on,
+    :global(html.sheets) .scenes:focus-within { opacity: 1; pointer-events: auto; transition: opacity 0.8s var(--resolve); }
+  }
+  .scenes ol { display: grid; gap: 2px; }
+  .scenes a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 26px;
+    padding-right: 6px;
+    color: var(--graphite);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  .tick {
+    flex: none;
+    width: 12px;
+    height: 1px;
+    background: var(--control);
+    transform-origin: 0 50%;
+    transition: transform 0.45s var(--resolve), background-color 0.2s linear;
+  }
+  .lbl {
+    padding: 2px 6px;
+    border-radius: 2px;
+    background: var(--paper);
+    white-space: nowrap;
+    opacity: 0;
+    translate: -4px 0;
+    transition: opacity 0.25s linear, translate 0.4s var(--resolve);
+  }
+  .scenes a[aria-current='true'] { color: var(--ink); }
+  .scenes a[aria-current='true'] .tick { background: var(--ink); transform: scaleX(2); }
+  /* labels: on hover or keyboard focus, and the current one where the margin has room */
+  .scenes:hover .lbl,
+  .scenes:focus-within .lbl,
+  .scenes a:hover .lbl { opacity: 1; translate: 0 0; }
+  .scenes a[aria-current='true'] .lbl { margin-left: 12px; }
+  @media (min-width: 1440px) {
+    .scenes a[aria-current='true'] .lbl { opacity: 1; translate: 0 0; }
+  }
+  .scenes a:hover .tick { background: var(--ink); }
+  .scenes a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  @media (forced-colors: active) {
+    .tick { background: CanvasText; }
+    .scenes a[aria-current='true'] .tick, .scenes a:hover .tick { background: Highlight; }
+    .lbl { background: Canvas; }
+  }
+</style>

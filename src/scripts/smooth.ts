@@ -1,12 +1,15 @@
 // Smooth wheel and trackpad scrolling (Lenis). Loaded only when motion is
 // allowed, after first paint. Touch stays native. In-page links glide, then
 // move keyboard focus to their target. Paused while a dialog is open.
+import { sceneTop, viewTop } from './sheets';
+
 const root = document.documentElement;
 
 if (root.classList.contains('motion')) {
   import('lenis').then(({ default: Lenis }) => {
     const lenis = new Lenis({ autoRaf: true, lerp: 0.085, stopInertiaOnNavigate: true });
     (window as any).__lenis = lenis;
+    window.dispatchEvent(new CustomEvent('aig:lenis'));
 
     window.addEventListener('aig:lock', () => lenis.stop());
     window.addEventListener('aig:unlock', () => lenis.start());
@@ -19,8 +22,9 @@ if (root.classList.contains('motion')) {
       const target = id ? document.getElementById(id) : null;
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, {
-        offset: -24,
+      // a section heading opens its whole scene; anything else lands just below the top
+      const y = sceneTop(target) ?? viewTop(target);
+      lenis.scrollTo(y, {
         duration: 1.2,
         easing: (t: number) => 1 - Math.pow(1 - t, 4),
         onComplete: () => {

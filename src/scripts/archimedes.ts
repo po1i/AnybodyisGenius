@@ -394,15 +394,26 @@ function mount(host: HTMLElement, kind: Kind): Figure {
   };
 
   // ---- inputs ---------------------------------------------------------------
+  // on screen, and not under a later section laid over it (scripts/sheets.ts)
+  let onScreen = false, covered = false;
+  const sheet = host.closest<HTMLElement>('[data-sheet]')?.dataset.sheet;
+  const refresh = () => {
+    visible = onScreen && !covered;
+    if (visible && !started && layout()) begin();
+    kick();
+  };
   const io = new IntersectionObserver(
     ([e]) => {
-      visible = e.isIntersecting && e.intersectionRatio >= 0.35;
-      if (visible && !started && layout()) begin();
-      kick();
+      onScreen = e.isIntersecting && e.intersectionRatio >= 0.35;
+      refresh();
     },
     { threshold: [0, 0.35, 0.6] },
   );
   io.observe(host);
+  window.addEventListener('aig:sheets', (e) => {
+    covered = !!sheet && (e as CustomEvent<{ covered: string[] }>).detail.covered.includes(sheet);
+    refresh();
+  });
 
   const relayout = () => {
     if (host.clientWidth === S && Math.min(window.devicePixelRatio || 1, 2) === dpr) return;

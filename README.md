@@ -84,6 +84,14 @@ Every push to `main` builds the site and publishes it with GitHub Pages, using t
 - Smooth scrolling (Lenis), scroll reveals, the hero entrance, the pill-to-dialog morph and the
   circle animations all switch off when the visitor asks for reduced motion. The page is complete
   without any of them, and without JavaScript.
+- One-stage scrolling (`src/scripts/sheets.ts`): each section is a sheet that pins, and the next
+  slides over it while it settles back and dims. When a wheel or trackpad scroll stops within 30%
+  of a screen before the next section, the page glides the rest of the way (or settles back if a
+  scroll carried you just past a section start). It never takes over scrolling: touch, keyboard
+  and scrollbar work normally, nothing glides while you type or the dialog is open, and reduced
+  motion, no-JS and print get the plain page. On wide screens a scene index sits in the left
+  margin. Sections are marked with `data-sheet` (the last one, `final`, doesn't pin); tune the
+  glide with `AHEAD` and `BEHIND` in the script.
 - The circle drawings are Archimedes' construction from *Measurement of a Circle*, Proposition 3: a
   circle between an inscribed and a circumscribed polygon. One sits beside the headline on wide
   screens; it draws itself in once per visit, and on a mouse the edge nearest the pointer shows
