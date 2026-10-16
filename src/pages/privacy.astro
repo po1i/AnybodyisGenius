@@ -4,7 +4,9 @@ import Masthead from '../components/Masthead.astro';
 import Colophon from '../components/Colophon.astro';
 import Placeholder from '../components/Placeholder.astro';
 import { site } from '../data/site';
+import { signupConfig } from '../data/signup.config';
 const base = import.meta.env.BASE_URL;
+const providerName = { loops: 'Loops (loops.so)', kit: 'Kit (kit.com)', mock: null }[signupConfig.provider];
 ---
 
 <Base title={`Privacy policy: ${site.name}`} noindex>
@@ -16,8 +18,8 @@ const base = import.meta.env.BASE_URL;
       <p class="c-text priv-flag"><Placeholder label="final privacy policy, reviewed before launch. The text below is a plain-language draft that matches how this page works today." /></p>
       <div class="prose c-text priv-body">
         <p><strong>What we collect.</strong> Your email address, if you join the early-access list. Nothing else is asked for.</p>
-        <p><strong>What we use it for.</strong> To tell you about early access: a one-time confirmation email, one email when your invitation is ready, and at most one short note a month before then. We don’t sell your address or share it with advertisers.</p>
-        <p><strong>Who handles it.</strong> Addresses are stored by our email provider, <Placeholder label="email provider, e.g. Loops" />, which sends the emails on our behalf.</p>
+        <p><strong>What we use it for.</strong> To tell you about early access: {signupConfig.doubleOptIn ? 'a one-time confirmation email, ' : ''}one email when your invitation is ready, and at most one short note a month before then. We don’t sell your address or share it with advertisers.</p>
+        <p><strong>Who handles it.</strong> Addresses are stored by our email provider, {providerName ?? <Placeholder label="email provider, e.g. Loops" />}, which sends the emails on our behalf.</p>
         <p><strong>On your device.</strong> This site sets no cookies and runs no analytics or ad trackers. After you sign up, your browser keeps a note of the address in its local storage on this device only, so the form can tell you if you’ve already signed up from this device.</p>
         <p><strong>Your choices.</strong> Every email has an unsubscribe link. To have your address deleted, write to {site.contactEmail ?? <Placeholder label="contact email" />}.</p>
         <p><strong>Changes.</strong> If this policy changes, the date below changes too. Last updated <Placeholder label="date" />.</p>

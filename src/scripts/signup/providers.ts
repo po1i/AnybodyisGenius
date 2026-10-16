@@ -1,4 +1,4 @@
-import { signupConfig, type Provider } from '../../data/signup.config';
+import { signupConfig, loopsFormId, type Provider } from '../../data/signup.config';
 
 export type SignupStatus = 'success' | 'duplicate' | 'invalid' | 'rate_limited' | 'error';
 export interface SignupResult {
@@ -10,14 +10,17 @@ type Adapter = (email: string, signal: AbortSignal) => Promise<SignupResult>;
 const parseJson = (res: Response) => res.json().catch(() => ({}) as Record<string, unknown>);
 
 // Loops: https://loops.so/docs/forms/custom-form
-// A urlencoded POST with no custom headers is a CORS "simple request".
+// A urlencoded POST is a CORS "simple request", so no preflight. A repeat
+// address comes back as 400 "Email already on list.", reported as a duplicate.
 const loops: Adapter = async (email, signal) => {
-  const { formId, source, mailingLists } = signupConfig.loops;
+  const { source, mailingLists } = signupConfig.loops;
+  const formId = loopsFormId();
   if (!formId) return { status: 'error', message: 'Signup is not connected yet.' };
   const body = new URLSearchParams({ email, source });
   if (mailingLists) body.set('mailingLists', mailingLists);
   const res = await fetch(`https://app.loops.so/api/newsletter-form/${encodeURIComponent(formId)}`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body,
     signal,
   });
@@ -41,8 +44,9 @@ const kit: Adapter = async (email, signal) => {
     signal,
   });
   if (res.status === 429) return { status: 'rate_limited' };
+  // "quarantined" means Kit's bot check is holding the signup: not subscribed yet
   const data = (await parseJson(res)) as { status?: string };
-  if (res.ok && (data.status === 'success' || data.status === 'quarantined')) return { status: 'success' };
+  if (res.ok && data.status === 'success') return { status: 'success' };
   return { status: 'error' };
 };
 

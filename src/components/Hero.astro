@@ -1,5 +1,6 @@
 ---
 import Signup from './Signup.astro';
+import ArchFigure from './ArchFigure.astro';
 import { site } from '../data/site';
 ---
 <section class="hero" aria-labelledby="hero-title">
@@ -17,12 +18,14 @@ import { site } from '../data/site';
     </p>
 
     <div class="row hero-form">
-      <div class="c-text"><Signup id="email-top" halo /></div>
+      <div class="c-text"><Signup id="email-top" /></div>
       <p class="note c-note hero-note">
         Below, in Fig. 1: one question answered at five levels, from a child’s explanation to an
         expert’s.
       </p>
     </div>
+
+    <div class="hero-fig"><ArchFigure kind="hero" /></div>
   </div>
 </section>
 
@@ -55,4 +58,20 @@ import { site } from '../data/site';
   .hero-form { margin-top: calc(var(--u) * 4); }
   @media (min-width: 1024px) { .hero-form { margin-top: calc(var(--u) * 6); } }
   .hero-note { align-self: start; padding-top: 2px; }
+
+  /* the circle beside the headline: wide screens only, in the note column,
+     never behind text */
+  .hero-fig { display: none; }
+  @media (min-width: 1200px) {
+    .hero-title { grid-column: text; }
+    .hero-fig {
+      display: block;
+      grid-column: note;
+      grid-row: 1 / span 2;
+      align-self: center;
+      justify-self: end;
+      width: 100%;
+      max-width: 280px;
+    }
+  }
 </style>

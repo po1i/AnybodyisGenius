@@ -1,20 +1,20 @@
 ---
 import { site, privacyHref } from '../data/site';
-import { signupConfig } from '../data/signup.config';
+import { signupConfig, loopsFormId } from '../data/signup.config';
 
-interface Props { id: string; autofocus?: boolean; halo?: boolean }
-const { id, autofocus = false, halo = false } = Astro.props;
+interface Props { id: string; autofocus?: boolean }
+const { id, autofocus = false } = Astro.props;
 
 const action =
-  signupConfig.provider === 'loops' && signupConfig.loops.formId
-    ? `https://app.loops.so/api/newsletter-form/${signupConfig.loops.formId}`
+  signupConfig.provider === 'loops' && loopsFormId()
+    ? `https://app.loops.so/api/newsletter-form/${encodeURIComponent(loopsFormId())}`
     : signupConfig.provider === 'kit' && signupConfig.kit.formId
       ? `https://app.kit.com/forms/${signupConfig.kit.formId}/subscriptions`
       : undefined;
 const privacy = privacyHref(import.meta.env.BASE_URL);
 ---
 
-<div class:list={["signup", { halo }]} data-signup-box data-state="idle">
+<div class="signup" data-signup-box data-state="idle">
   <form class="signup-form" data-signup novalidate method="post" action={action}>
     <label class="signup-label ui" for={id}>Email address</label>
     <div class="signup-row">

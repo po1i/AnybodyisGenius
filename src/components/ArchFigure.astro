@@ -1,0 +1,47 @@
+---
+// Archimedes measuring a circle (Measurement of a Circle, Prop. 3). The canvas
+// version is drawn by scripts/archimedes.ts; this SVG is the hexagon stage for
+// visitors without JavaScript and for forced-colors mode.
+import { innerPoint, outerPoint } from '../data/archimedes';
+
+interface Props { kind: 'hero' | 'final' }
+const { kind } = Astro.props;
+
+const C = 50;
+const R = (C - 2) / 1.155;
+const ring = (f: typeof innerPoint, n: number) =>
+  Array.from({ length: n }, (_, k) => f(n, k))
+    .map(([x, y], i) => `${i ? 'L' : 'M'}${(C + x * R).toFixed(2)} ${(C - y * R).toFixed(2)}`)
+    .join(' ') + ' Z';
+const inner = ring(innerPoint, 6);
+const outer = ring(outerPoint, 6);
+---
+<div class="arch" data-arch={kind} aria-hidden="true">
+  <svg class="arch-static" viewBox="0 0 100 100" focusable="false">
+    <path class="arch-band" d={`${outer} ${inner}`} fill-rule="evenodd" />
+    <circle class="arch-circle" cx={C} cy={C} r={R} />
+    <path class="arch-line" d={`${outer} ${inner}`} />
+  </svg>
+</div>
+
+<style>
+  .arch { position: relative; width: 100%; aspect-ratio: 1; }
+  .arch :global(canvas),
+  .arch-static { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .arch-band { fill: var(--plate); }
+  .arch-circle { fill: none; stroke: var(--control); stroke-width: 1; stroke-dasharray: 2 4; vector-effect: non-scaling-stroke; }
+  .arch-line { fill: none; stroke: var(--ink); stroke-opacity: 0.34; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .arch.is-live .arch-static { display: none; }
+  /* when the script will draw it in, don't show the finished drawing first */
+  :global(html.motion) .arch-static { visibility: hidden; }
+  @media (forced-colors: active), (prefers-contrast: more) {
+    :global(html.motion) .arch-static { visibility: visible; }
+  }
+  @media (forced-colors: active) {
+    .arch :global(canvas) { display: none; }
+    .arch.is-live .arch-static { display: block; }
+    .arch-band { fill: none; }
+    .arch-circle { stroke: GrayText; }
+    .arch-line { stroke: CanvasText; stroke-opacity: 1; }
+  }
+</style>
