@@ -1,0 +1,60 @@
+/* Literata (TypeTogether) and Atkinson Hyperlegible Next (Braille Institute),
+   both SIL OFL 1.1. Static instances, latin + math subset.
+   All four are used above the fold and preloaded. font-display: optional means
+   a very slow first visit keeps the size-matched fallbacks for that one view
+   instead of shifting the layout when the fonts arrive. */
+@font-face {
+  font-family: 'Literata Display';
+  src: url('../assets/fonts/literata-display.woff2') format('woff2');
+  font-weight: 360;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'Literata';
+  src: url('../assets/fonts/literata-text.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'Literata';
+  src: url('../assets/fonts/literata-text-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  src: url('../assets/fonts/atkinson.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: optional;
+}
+
+/* Fallbacks scaled to the web fonts' width and line box, so nothing reflows
+   on swap. Measured against Liberation Serif/Sans (Times New Roman/Arial metrics). */
+@font-face {
+  font-family: 'Literata Display Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif');
+  size-adjust: 107.12%;
+  ascent-override: 109.88%;
+  descent-override: 28.75%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Literata Fallback';
+  src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif');
+  size-adjust: 111.2%;
+  ascent-override: 105.85%;
+  descent-override: 27.7%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Atkinson Fallback';
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Helvetica');
+  size-adjust: 98.13%;
+  ascent-override: 100.27%;
+  descent-override: 32.2%;
+  line-gap-override: 0%;
+}

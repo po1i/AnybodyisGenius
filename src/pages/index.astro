@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import Masthead from '../components/Masthead.astro';
+import Hero from '../components/Hero.astro';
+import Demo from '../components/Demo.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import Mission from '../components/Mission.astro';
+import FAQ from '../components/FAQ.astro';
+import FinalSignup from '../components/FinalSignup.astro';
+import Colophon from '../components/Colophon.astro';
+import JoinDialog from '../components/JoinDialog.astro';
+---
+
+<Base>
+  <Masthead />
+  <main id="main">
+    <Hero />
+    <Demo />
+    <HowItWorks />
+    <Mission />
+    <FAQ />
+    <FinalSignup />
+  </main>
+  <Colophon />
+  <JoinDialog />
+  <script>
+    import '../scripts/signup/signup';
+    import '../scripts/fig2';
+    import '../scripts/reveal';
+    import '../scripts/join';
+    import '../scripts/smooth';
+    import { startArchimedes } from '../scripts/archimedes';
+
+    // the background drawing waits until the page has settled
+    const later = () =>
+      'requestIdleCallback' in window
+        ? requestIdleCallback(startArchimedes, { timeout: 1200 })
+        : setTimeout(startArchimedes, 200);
+    if (document.readyState === 'complete') later();
+    else addEventListener('load', later, { once: true });
+  </script>
+</Base>

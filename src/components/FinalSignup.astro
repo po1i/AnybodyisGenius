@@ -1,0 +1,23 @@
+---
+import Signup from './Signup.astro';
+---
+<section class="section final" aria-labelledby="final-title">
+  <div class="grid">
+    <div class="section-rule"></div>
+    <h2 id="final-title" class="display h2 c-text" data-reveal>Start from what you already know.</h2>
+    <p class="lede c-text final-lede" data-reveal>Join the early-access list, and we’ll write when your invitation is ready.</p>
+    <div class="c-text final-form"><Signup id="email-bottom" halo /></div>
+    <p class="note c-note final-note" data-reveal>
+      Behind these pages, Archimedes measures a circle: hexagons inside and outside it, their
+      sides doubled at each section, to 96. That was enough to show that π lies between
+      3&#8239;<span class="frac">10/71</span> and 3&#8239;<span class="frac">1/7</span>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .final-lede { margin-top: calc(var(--u) * 2); }
+  .final-form { margin-top: calc(var(--u) * 4); }
+  .frac { font-variant-numeric: diagonal-fractions; }
+  @media (min-width: 768px) { .final-note { grid-row: 2 / span 3; align-self: end; } }
+</style>

@@ -1,0 +1,62 @@
+---
+import Placeholder from './Placeholder.astro';
+import { site, privacyHref } from '../data/site';
+const privacy = privacyHref(import.meta.env.BASE_URL);
+---
+<section class="section faq" aria-labelledby="faq-title">
+  <div class="grid">
+    <div class="section-rule"></div>
+    <h2 id="faq-title" class="display h2 c-text" data-reveal>Questions</h2>
+    <dl class="faq-list c-text" data-reveal-group>
+      <div data-reveal>
+        <dt>What is Anybody Is Genius?</dt>
+        <dd>
+          An AI teacher for adults. You choose what you want to understand. It checks what you
+          already know, teaches one step past it, asks you to do the thinking, and brings ideas
+          back over time. It isn’t a course library, and it isn’t a chatbot that just hands you
+          answers.
+        </dd>
+      </div>
+      <div data-reveal>
+        <dt>Who is it for?</dt>
+        <dd>
+          Adults who want to understand things properly, whether they’re starting from nothing
+          or already know a field well. It starts wherever you are.
+        </dd>
+      </div>
+      <div data-reveal>
+        <dt>Is the demo above the real app?</dt>
+        <dd>
+          No. It’s a fixed example, written in advance and checked against published sources, to
+          show the idea: one question taught at five depths. The app will find your level and
+          adjust as you go, rather than pick from five set answers.
+        </dd>
+      </div>
+      <div data-reveal>
+        <dt>When does it launch?</dt>
+        <dd>
+          Early access opens {site.launchDate ?? <Placeholder label="launch date" />}. People on
+          the list get the first invitations.
+        </dd>
+      </div>
+      <div data-reveal>
+        <dt>What happens to my email?</dt>
+        <dd>
+          We use it for one thing: early access. After a one-time confirmation email, you’ll get
+          one email when your invitation is ready, and at most one short note a month before
+          then. We don’t sell it or share it
+          with advertisers. Every email has an unsubscribe link, and the
+          <a href={privacy}>privacy policy</a> has the details.
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .faq-list { margin-top: calc(var(--u) * 5); max-width: 33em; }
+  .faq-list > div { padding-block: calc(var(--u) * 3); border-top: 1px solid var(--hairline); }
+  .faq-list > div:last-child { border-bottom: 1px solid var(--hairline); }
+  dt { font-family: var(--f-display); font-size: var(--s-24); line-height: calc(var(--u) * 4); text-wrap: balance; }
+  dd { margin-top: calc(var(--u) * 1); text-wrap: pretty; }
+</style>

@@ -1,0 +1,191 @@
+---
+import { site, privacyHref } from '../data/site';
+import { signupConfig } from '../data/signup.config';
+
+interface Props { id: string; autofocus?: boolean; halo?: boolean }
+const { id, autofocus = false, halo = false } = Astro.props;
+
+const action =
+  signupConfig.provider === 'loops' && signupConfig.loops.formId
+    ? `https://app.loops.so/api/newsletter-form/${signupConfig.loops.formId}`
+    : signupConfig.provider === 'kit' && signupConfig.kit.formId
+      ? `https://app.kit.com/forms/${signupConfig.kit.formId}/subscriptions`
+      : undefined;
+const privacy = privacyHref(import.meta.env.BASE_URL);
+---
+
+<div class:list={["signup", { halo }]} data-signup-box data-state="idle">
+  <form class="signup-form" data-signup novalidate method="post" action={action}>
+    <label class="signup-label ui" for={id}>Email address</label>
+    <div class="signup-row">
+      <input
+        class="signup-input ui"
+        id={id}
+        name="email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="go"
+        required
+        placeholder="name@example.org"
+        aria-describedby={`${id}-msg ${id}-note`}
+        autofocus={autofocus}
+      />
+      <button class="signup-button ui" type="submit" aria-disabled="false">
+        <span class="b-idle">Join early access</span>
+        <span class="b-busy">Sending<span class="dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></span>
+      </button>
+    </div>
+    <span class="sr-only" role="status" data-signup-status></span>
+    <div class="hp" aria-hidden="true">
+      <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+    </div>
+    <p class="signup-msg ui" id={`${id}-msg`} role="alert" data-signup-msg hidden>
+      <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 1v5.5h7.5M7 4l2.5 2.5L7 9" fill="none" stroke="currentColor" stroke-width="1.3" /></svg>
+      <span data-msg-text></span>
+    </p>
+    <p class="signup-note ui" id={`${id}-note`}>
+      One email when your invitation is ready, and at most one short note a month until then.
+      Unsubscribe anytime. <a href={privacy}>Privacy policy</a>.
+    </p>
+  </form>
+
+  <div class="signup-done" data-signup-done hidden>
+    <p class="done-title" tabindex="-1" data-done-title>You’re on the list.</p>
+    <p class="done-body" data-done-body></p>
+    <p class="done-stamp smallcaps" data-done-stamp></p>
+  </div>
+</div>
+
+<style>
+  .signup {
+    display: grid;
+    container-type: inline-size;
+    max-width: 34rem;
+  }
+  .signup-form, .signup-done { grid-area: 1 / 1; }
+
+  .signup-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: var(--s-14);
+    line-height: 21px;
+    color: var(--graphite);
+  }
+  .signup-row { display: grid; gap: 8px; }
+  @container (min-width: 30rem) {
+    .signup-row { grid-template-columns: 1fr auto; gap: 0; }
+    .signup-input { border-right: 0; border-radius: 2px 0 0 2px; }
+    .signup-button { border-radius: 0 2px 2px 0; }
+  }
+
+  .signup-input {
+    width: 100%;
+    height: 54px;
+    padding: 0 14px;
+    background: var(--leaf);
+    border: 1px solid var(--control);
+    border-radius: 2px;
+    font-size: 1.0625rem;
+    color: var(--ink);
+    transition: border-color 0.16s linear, box-shadow 0.16s linear;
+  }
+  .signup-input::placeholder { color: var(--graphite); opacity: 0.85; }
+  .signup-input:hover { border-color: var(--graphite); }
+  .signup-input:focus { outline: none; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .signup-input:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .signup-input[aria-invalid='true'] { border-color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+  .signup-input:read-only { color: var(--graphite); }
+
+  .signup-button {
+    position: relative;
+    height: 54px;
+    padding: 0 22px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: var(--ink);
+    color: var(--leaf);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: 0.005em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.12s linear;
+  }
+  .signup-button:hover { background: var(--ink-hover); }
+  .signup-button:active { background: #000; }
+  .signup-button[aria-disabled='true'] { cursor: progress; }
+  .b-busy { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; visibility: hidden; }
+  [data-state='loading'] .b-idle { visibility: hidden; }
+  [data-state='loading'] .b-busy { visibility: visible; }
+  .dots span { opacity: 0.25; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-state='loading'] .dots span { animation: dot 1.2s steps(1) infinite; }
+    [data-state='loading'] .dots span:nth-child(2) { animation-delay: 0.3s; }
+    [data-state='loading'] .dots span:nth-child(3) { animation-delay: 0.6s; }
+  }
+  @keyframes dot { 0%, 100% { opacity: 0.25; } 25%, 75% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .dots span { opacity: 1; } }
+
+  .hp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  .signup-msg {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-top: 10px;
+    font-size: var(--s-16);
+    line-height: 24px;
+    color: var(--ink);
+  }
+  .signup-msg[hidden] { display: none; }
+  .signup-msg svg { flex: none; transform: translateY(1px); }
+  .signup-msg:not([hidden]) { animation: fade 0.2s var(--resolve); }
+
+  .signup-note {
+    margin-top: 12px;
+    font-size: var(--s-14);
+    line-height: 21px;
+    color: var(--graphite);
+    max-width: 30rem;
+  }
+
+  .signup-done { align-self: start; }
+  .done-title {
+    font-family: var(--f-display);
+    font-size: var(--s-24);
+    line-height: 32px;
+  }
+  .done-body { margin-top: 4px; font-size: var(--s-18); line-height: 28px; overflow-wrap: anywhere; }
+  .done-stamp:empty { display: none; }
+  .done-stamp {
+    position: relative;
+    margin-top: 14px;
+    padding-top: 10px;
+    font-size: var(--s-14);
+    line-height: 21px;
+    color: var(--graphite);
+  }
+  .done-stamp::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: var(--ink);
+    opacity: 0.25;
+    transform-origin: left;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-state='done'] .done-stamp::before { animation: rule 1.2s var(--draw) 0.35s both; }
+    [data-state='done'] .done-stamp { animation: fade 0.6s linear 0.9s both; }
+  }
+  @keyframes rule { from { transform: scaleX(0); } }
+  [data-state='done'] .signup-form { visibility: hidden; }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-state='done'] .signup-done { animation: resolve 0.52s var(--resolve) both; }
+  }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes resolve { from { opacity: 0; transform: translateY(0.25em); } }
+</style>

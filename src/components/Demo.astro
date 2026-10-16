@@ -1,0 +1,424 @@
+---
+import Figure1 from './Figure1.astro';
+import { levels, question, equation, citation } from '../data/demo';
+
+const N = levels.length;
+const FIG_H = [142, 142, 270, 270, 372]; // visible drawing height per level, in viewBox units
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// Paragraph -> sentences wrapped for the staggered resolve; *term* -> <em>.
+let si = 0;
+const renderPara = (p: string) => {
+  const html = esc(p)
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/_([^_\s]+)_/g, '<i class="m">$1</i>')
+    .replace(
+      '[cite]',
+      `<sup class="cite"><a href="#cite-1" aria-label="Source 1">1</a></sup>`,
+    );
+  return html
+    .split(/(?<=[.?!:])\s+(?=[A-Z(])/)
+    .map((s) => `<span class="s" style="--i:${si++}">${s}</span>`)
+    .join(' ');
+};
+
+const eqHtml = `
+<div class="eq" role="math" aria-label="${esc(equation.spoken)}">
+  <div class="eq-main" aria-hidden="true">
+    <span class="eq-body">
+      <span class="nb"><i class="ov">Q</i> = (<i>S</i><sub>0</sub>/π)(<i class="ov">d</i>/<i>d</i>)<sup>2</sup></span>
+      <span class="nb">(<i>h</i><sub>0</sub> sin <i>φ</i> sin <i>δ</i></span>
+      <span class="nb">+ cos <i>φ</i> cos <i>δ</i> sin <i>h</i><sub>0</sub>)</span>
+    </span>
+    <span class="eq-n">(1)</span>
+  </div>
+  <div class="eq-aux" aria-hidden="true">cos <i>h</i><sub>0</sub> = −tan <i>φ</i> tan <i>δ</i></div>
+</div>`;
+
+const readings = levels.map((l) => {
+  si = 0;
+  return {
+    ...l,
+    html: l.paragraphs.map((p) => (p === '[eq]' ? eqHtml : `<p>${renderPara(p)}</p>`)).join(''),
+  };
+});
+
+// Level state rules, written twice: once keyed on :has() for no-JS
+// visitors, once on [data-lvl] set by the script (older browsers).
+// They must be separate rules: one unsupported selector voids a whole list.
+const states: string[] = [];
+for (let n = 1; n <= N; n++) {
+  for (const S of [`.demo.demo[data-lvl="${n}"]`, `.demo.demo:has(#lvl-${n}:checked)`]) {
+    states.push(`${S}{--lvl:${n}}`);
+    states.push(`${S} .fig-art{--fig-h:${FIG_H[n - 1]}}`);
+    states.push(`${S} .reading[data-level="${n}"]{--on:1;--ease:var(--resolve);visibility:visible;transition-delay:0s}`);
+    states.push(`${S} .side-level[data-level="${n}"]{--on:1;visibility:visible;transition-delay:0s}`);
+    for (let k = n + 1; k <= N; k++) states.push(`${S} .fig1-svg [data-layer="${k}"]{--vis:0}`);
+    states.push(`${S} .fig1-svg [data-layer="${n}"]{--stroke:var(--rubric)}`);
+  }
+}
+// Baseline: hide every reading once a level is known (JS) or :has() works.
+// Lower specificity than the per-level rules above, so they always win.
+const baseCss = `.demo[data-lvl] .reading,.demo[data-lvl] .side-level{visibility:hidden}
+@supports selector(:has(*)){.demo .reading,.demo .side-level{visibility:hidden}}`;
+const stateCss = baseCss + '\n' + states.join('\n');
+---
+
+<section class="demo-section" aria-labelledby="demo-q">
+  <div class="plate">
+    <div class="demo grid" data-demo>
+      <p class="mark smallcaps fig-mark">Fig. 1</p>
+      <h2 id="demo-q" class="display h2 c-text demo-q">{question}</h2>
+      <p class="note c-note demo-intro">
+        One question at five levels. Each reading is about the same length, so what changes is depth.
+      </p>
+
+      <fieldset class="scale c-scale" data-scale data-reveal>
+        <legend class="sr-only">Explanation level</legend>
+        <div class="scale-inner">
+          <div class="rail" aria-hidden="true" data-rail>
+            <span class="rule"></span>
+            {levels.map((_, i) => <span class="tick" style={`--k:${i}`}></span>)}
+            <span class="carriage" data-carriage><span class="ribbon"></span></span>
+            <span class="tour-bar" data-tour-bar></span>
+          </div>
+          <div class="stops">
+            {levels.map((l) => (
+              <label class="stop" for={`lvl-${l.n}`}>
+                <input
+                  class="stop-input"
+                  type="radio"
+                  name="level"
+                  id={`lvl-${l.n}`}
+                  value={l.n}
+                  checked={l.n === 1}
+                  data-label={l.label}
+                />
+                <span class="sr-only">Level {l.n} of {N}, </span>
+                <span class="stop-face">
+                  <span class="stop-n ui" aria-hidden="true">{l.n}</span>
+                  <span class:list={['stop-name ui', { 'stop-end': l.n === 1 || l.n === N }]}>{l.label}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div class="scale-foot">
+          <p class="scale-help ui">
+            <span class="help-fine">Click a level, drag the ribbon, or use the arrow keys.</span>
+            <span class="help-coarse">Tap a level, or drag the ribbon.</span>
+          </p>
+          <button class="tour ui" type="button" data-tour hidden>
+            <svg class="tour-i tour-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" /></svg>
+            <svg class="tour-i tour-pause" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2h2v8H3zM7 2h2v8H7z" /></svg>
+            <span data-tour-label>Play all five</span>
+          </button>
+        </div>
+      </fieldset>
+
+      <div class="row demo-body" data-reveal>
+        <div class="readings c-read">
+          {readings.map((r) => (
+            <article class="reading" data-level={r.n} aria-labelledby={`rh-${r.n}`}>
+              <p class="reading-head smallcaps" id={`rh-${r.n}`}>Reading {r.n} of {N}, {r.label}</p>
+              <div class="reading-text" set:html={r.html} />
+            </article>
+          ))}
+        </div>
+
+        <div class="side c-side">
+          <div class="fig1" data-fig>
+            <div class="fig-art"><Figure1 /></div>
+            <div class="side-stack">
+              {readings.map((r) => (
+                <div class="side-level" data-level={r.n}>
+                  <p class="sr-only">Figure: {r.figureDesc}</p>
+                  <p class="note fig-cap"><span class="smallcaps fig-n">Fig. 1.</span> {r.caption}</p>
+                  <dl class="jump note">
+                    <div><dt class="smallcaps">Assumes</dt><dd>{r.assumes}</dd></div>
+                    <div><dt class="smallcaps">Added</dt><dd>{r.added}</dd></div>
+                  </dl>
+                  {r.n === 4 && (
+                    <dl class="symbols note">
+                      {equation.symbols.map(([s, d]) => <div><dt set:html={s} /><dd>{d}</dd></div>)}
+                    </dl>
+                  )}
+                  {r.n === N && (
+                    <p class="note cite-note" id="cite-1">
+                      <span class="cite-n">1</span> {citation.text}{' '}
+                      <a href={citation.url} rel="noopener" target="_blank">doi<span class="sr-only"> (opens in a new tab)</span></a>
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="grid">
+    <p class="bridge c-text">
+      That is the idea behind Anybody Is Genius: find your level first, then teach just past it.
+    </p>
+  </div>
+</section>
+
+<style is:inline set:html={stateCss}></style>
+
+<script>
+  import '../scripts/demo';
+</script>
+
+<style>
+  .demo-section { padding-top: calc(var(--u) * 2); }
+  .plate {
+    background: var(--plate);
+    border-block: 1px solid var(--hairline);
+    padding-block: calc(var(--u) * 7) calc(var(--u) * 8);
+  }
+  @media (min-width: 1024px) { .plate { padding-block: calc(var(--u) * 8) calc(var(--u) * 10); } }
+
+  .fig-mark { color: var(--ink); }
+  .demo-intro { align-self: end; }
+  @media (max-width: 767px) { .demo-intro { margin-top: calc(var(--u) * 1); border: 0; padding: 0; } }
+
+  /* columns: reading takes 6 of 7 text columns on desktop, figure the rest */
+  .c-scale, .c-read { grid-column: text; }
+  .c-side { grid-column: text; }
+  @media (min-width: 768px) { .c-scale { grid-column: text-start / span 5; } }
+  @media (min-width: 768px) and (max-width: 1199px) { .demo-intro { grid-row: span 2; align-self: start; } }
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    .c-read { grid-column: text-start / span 5; }
+    .c-side { grid-column: 6 / full-end; }
+  }
+  @media (min-width: 1200px) {
+    .c-scale, .c-read { grid-column: text-start / span 6; }
+    .c-side { grid-column: 9 / full-end; }
+  }
+
+  /* the scale */
+  .scale { border: 0; padding: 0; margin-top: calc(var(--u) * 5); min-inline-size: 0; container-type: inline-size; touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+  .scale-inner { position: relative; }
+  .rail { position: absolute; inset: 0 0 auto 0; height: 34px; pointer-events: none; overflow-x: clip; }
+  .rule { position: absolute; left: 0; right: 0; top: 12px; height: 1px; background: var(--control); }
+  .tick { position: absolute; top: 6px; width: 1px; height: 13px; background: var(--control); left: calc(10% + var(--k) * 20%); }
+  .carriage {
+    position: absolute;
+    inset: 0;
+    transform: translateX(calc((var(--lvl, 1) - 1) * 20%));
+    transition: transform 0.42s var(--resolve);
+  }
+  .ribbon {
+    position: absolute;
+    left: calc(10% - 6px);
+    top: 12px;
+    width: 12px;
+    height: 24px;
+    background: var(--rubric);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+  }
+  .stops { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .stop {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    padding: 40px 2px 10px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .stop-input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+  .stop-face { display: grid; justify-items: center; gap: 2px; padding: 2px 6px; border-radius: 2px; }
+  .stop-input:focus-visible ~ .stop-face { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .stop-n { font-size: var(--s-14); line-height: 18px; color: var(--graphite); font-variant-numeric: tabular-nums lining-nums; }
+  .stop-name { font-size: var(--s-14); line-height: 20px; color: var(--graphite); transition: color 0.16s linear; }
+  .stop:hover .stop-name, .stop:hover .stop-n { color: var(--ink); }
+  .stop-input:checked ~ .stop-face .stop-name { color: var(--ink); font-weight: 600; }
+  .stop-input:checked ~ .stop-face .stop-n { color: var(--ink); }
+  @container (max-width: 34rem) {
+    .stop-name:not(.stop-end) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .stop { padding-bottom: 30px; }
+  }
+
+  .scale-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 4px; }
+  .scale-help { font-size: var(--s-14); line-height: 21px; color: var(--graphite); }
+  .tour {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 36px; padding: 0 12px 0 10px;
+    border: 1px solid var(--control); border-radius: 999px;
+    background: transparent; color: var(--ink);
+    font-size: var(--s-14); cursor: pointer;
+    transition: border-color 0.2s linear, background-color 0.2s linear;
+  }
+  .tour:hover { border-color: var(--ink); background: rgb(28 27 24 / 0.04); }
+  .tour:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .tour-i { width: 10px; height: 10px; fill: currentColor; }
+  .tour-pause { display: none; }
+  .tour[aria-pressed='true'] .tour-play { display: none; }
+  .tour[aria-pressed='true'] .tour-pause { display: block; }
+  .tour-bar {
+    position: absolute; left: 0; right: 0; top: 12px; height: 1px;
+    background: var(--ink); transform: scaleX(0); transform-origin: left;
+    opacity: 0;
+  }
+  .demo:global(.is-touring) .tour-bar { opacity: 1; }
+  @media (forced-colors: active) { .tour-bar { background: Highlight; } }
+  .help-coarse { display: none; }
+  @media (pointer: coarse) { .help-fine { display: none; } .help-coarse { display: inline; } }
+
+  /* readings: all five share one cell, so the box never changes height */
+  .demo-body { margin-top: calc(var(--u) * 3); row-gap: calc(var(--u) * 5); }
+  .readings { display: grid; }
+  .reading {
+    grid-area: 1 / 1;
+    --on: 0;
+    --ease: var(--depart);
+  }
+  .reading-head { font-size: var(--s-14); line-height: 21px; color: var(--graphite); margin-bottom: calc(var(--u) * 2); }
+  .reading-text :global(p + p), .reading-text :global(.eq + p), .reading-text :global(p + .eq) { margin-top: calc(var(--u) * 2); }
+  .reading-text { max-width: 33em; text-wrap: pretty; }
+  .reading-text :global(em) { font-style: italic; }
+
+  /* register shifts with depth: same budget, denser type */
+  .reading[data-level='1'] .reading-text { font-size: var(--s-21); line-height: 28px; }
+  .reading[data-level='4'] .reading-text, .reading[data-level='5'] .reading-text { font-size: var(--s-16); line-height: 24px; }
+  @media (min-width: 1024px) {
+    .reading[data-level='1'] .reading-text { font-size: var(--s-24); line-height: 32px; }
+    .reading[data-level='2'] .reading-text, .reading[data-level='3'] .reading-text { font-size: var(--s-21); line-height: 32px; }
+    .reading[data-level='4'] .reading-text, .reading[data-level='5'] .reading-text { font-size: var(--s-18); line-height: 28px; }
+  }
+  .reading[data-level='4'] .reading-text, .reading[data-level='5'] .reading-text { font-variant-numeric: lining-nums tabular-nums; }
+
+  /* the equation */
+  .reading-text :global(.eq) { margin-block: calc(var(--u) * 2); }
+  .reading-text :global(.eq-main) { display: flex; align-items: last baseline; justify-content: space-between; gap: 16px; }
+  .reading-text :global(.eq-body) { padding-left: 1.5em; text-indent: -1.5em; }
+  .reading-text :global(.eq-body) { font-variant-numeric: lining-nums; }
+  .reading-text :global(.nb) { white-space: nowrap; }
+  .reading-text :global(.eq i) { font-style: italic; }
+  .reading-text :global(.ov), .symbols :global(.ov) { position: relative; }
+  .reading-text :global(.ov)::after, .symbols :global(.ov)::after {
+    content: '';
+    position: absolute;
+    left: 0.14em;
+    right: -0.02em;
+    top: 0.06em;
+    border-top: 1px solid currentColor;
+  }
+  .reading-text :global(i.m) { font-style: italic; }
+  .reading-text :global(sub), .reading-text :global(sup) { font-size: 0.7em; line-height: 0; position: relative; }
+  .reading-text :global(sub) { vertical-align: baseline; top: 0.28em; }
+  .reading-text :global(sup) { vertical-align: baseline; top: -0.45em; }
+  .reading-text :global(.eq-n) { color: var(--graphite); font-style: normal; }
+  .reading-text :global(.eq-aux) { margin-top: 4px; }
+  .reading-text :global(.cite a) { text-decoration: none; padding-inline: 1px; }
+
+  /* the figure and margin notes */
+  .fig1 { margin: 0; }
+  .fig-art { max-width: 380px; aspect-ratio: 380 / var(--fig-h, 372); overflow: hidden; }
+  .fig-art :global(svg) { width: 100%; height: auto; overflow: visible; }
+  .side-stack { display: grid; margin-top: calc(var(--u) * 2); }
+  .side-level { grid-area: 1 / 1; --on: 0; }
+  .fig-cap { max-width: 24em; }
+  .fig-n { font-style: normal; color: var(--ink); }
+  .jump { margin-top: calc(var(--u) * 2); display: grid; gap: 6px; max-width: 24em; }
+  .jump dt { font-style: normal; color: var(--ink); font-size: 0.95em; }
+  .jump dd { margin: 0; }
+  .symbols { margin-top: calc(var(--u) * 2); display: grid; gap: 2px; font-style: normal; max-width: 26em; }
+  .symbols div { display: grid; grid-template-columns: 3.2em 1fr; gap: 8px; }
+  .symbols dt { font-style: italic; color: var(--ink); }
+  .symbols dd { margin: 0; }
+  .cite-note { margin-top: calc(var(--u) * 2); font-style: normal; max-width: 26em; }
+  .cite-n { font-variant-position: super; color: var(--ink); }
+  @media (max-width: 767px) { .jump, .symbols, .cite-note, .fig-cap { border: 0; padding-left: 0; } }
+
+  .bridge { margin-top: calc(var(--u) * 5); font-style: italic; color: var(--graphite); max-width: 33em; }
+
+  /* SVG styling */
+  .fig-art :global(svg) { --stroke: var(--ink); }
+  .fig-art :global(.d) { fill: none; stroke: var(--stroke); stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+  .fig-art :global(.body) { fill: var(--plate); }
+  .fig-art :global(.thin) { stroke-width: 1; }
+  .fig-art :global(.dash) { stroke-dasharray: 6 3; }
+  .fig-art :global(.dot) { stroke-dasharray: 0.1 3.2; stroke-linecap: round; stroke-width: 1.6; }
+  .fig-art :global(text) { font-family: var(--f-text); font-style: italic; font-size: 12px; fill: var(--graphite); }
+  .fig-art :global(.num) { font-variant-numeric: lining-nums; }
+  .fig-art :global(.greek) { font-size: 15px; fill: var(--ink); }
+  .fig-art :global(.month) { font-style: normal; font-family: var(--f-ui); font-size: 10px; letter-spacing: 0.04em; }
+  @media (max-width: 767px) {
+    .fig-art :global(text) { font-size: 13px; }
+    .fig-art :global(.month) { font-size: 11px; }
+  }
+  @media (forced-colors: active) {
+    .rail { forced-color-adjust: none; }
+    .rule, .tick { background: CanvasText; }
+    .ribbon { background: Highlight; }
+    .stop-input:checked ~ .stop-face .stop-n { font-weight: 700; text-decoration: underline 2px; text-underline-offset: 3px; }
+    .fig-art :global(svg) { --stroke: CanvasText; }
+    .fig-art :global(text), .fig-art :global(.greek) { fill: CanvasText; }
+    .fig-art :global(.body) { fill: Canvas; }
+  }
+
+  /* ---------- state + motion (values switch via the generated rules) ---------- */
+  .reading, .side-level { transition: visibility 0s linear 0.16s; }
+  .fig-art :global([data-layer]) { --vis: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reading :global(.s) {
+      opacity: var(--on, 1);
+      transition: opacity calc(160ms + var(--on, 1) * 360ms) var(--ease) calc(var(--on, 1) * (120ms + var(--i) * 70ms));
+    }
+    .reading { transform: translateY(calc((1 - var(--on, 1)) * 0.2em)); transition: visibility 0s linear 0.16s, transform 0.52s var(--resolve); }
+    .side-level { opacity: var(--on, 1); transition: visibility 0s linear 0.2s, opacity calc(200ms + var(--on, 1) * 320ms) var(--resolve) calc(var(--on, 1) * 0.6s); }
+
+    .fig-art :global([data-layer]) {
+      opacity: var(--vis);
+      transition: opacity calc((1 - var(--vis)) * 200ms) var(--depart);
+    }
+    .fig-art :global([data-layer] .d) {
+      stroke-dasharray: 1;
+      stroke-dashoffset: calc(1 - var(--vis));
+      transition:
+        stroke-dashoffset calc(var(--vis) * 900ms) var(--draw) calc((1 - var(--vis)) * 200ms),
+        stroke 0.6s linear;
+    }
+    /* patterned lines can't draw in (dash patterns would be rescaled), so they fade */
+    .fig-art :global([data-layer] .d.dash), .fig-art :global([data-layer] .d.dot) {
+      stroke-dashoffset: 0;
+      opacity: var(--vis);
+      transition: opacity calc(var(--vis) * 500ms) linear calc(var(--vis) * 400ms), stroke 0.6s linear;
+    }
+    .fig-art :global([data-layer] .d.dash) { stroke-dasharray: 6 3; }
+    .fig-art :global([data-layer] .d.dot) { stroke-dasharray: 0.1 3.2; }
+    .demo:global(.replay) .fig-art :global([data-current] .d.dash),
+    .demo:global(.replay) .fig-art :global([data-current] .d.dot) { opacity: 0; }
+    .fig-art :global([data-layer] text) {
+      opacity: var(--vis);
+      transition: opacity calc(var(--vis) * 240ms) linear calc(var(--vis) * 700ms);
+    }
+
+    /* drag: swap instantly; release replays once */
+    .demo:global(.is-dragging) .reading :global(.s),
+    .demo:global(.is-dragging) .reading,
+    .demo:global(.is-dragging) .side-level,
+    .demo:global(.is-dragging) .carriage,
+    .demo:global(.is-dragging) .fig-art :global(*),
+    .demo:global(.replay) .reading :global(.s),
+    .demo:global(.replay) .fig-art :global([data-current] *),
+    .fig1:global(.fig-offscreen) .fig-art :global(*) { transition: none !important; }
+    .demo:global(.replay) .reading :global(.s) { opacity: 0; }
+    .demo:global(.replay) .fig-art :global([data-current] .d) { stroke-dashoffset: 1; }
+    .demo:global(.replay) .fig-art :global([data-current] text) { opacity: 0; }
+
+    .demo:global(.nudge) .ribbon { animation: nudge 0.9s var(--resolve); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reading, .side-level { opacity: var(--on, 1); transition: visibility 0s linear 0.12s, opacity 0.12s linear; }
+    .carriage { transition: none; }
+    .fig-art :global([data-layer]) { opacity: var(--vis); transition: opacity 0.12s linear; }
+  }
+  @keyframes nudge { 0%, 100% { transform: none; } 45% { transform: translateX(7px); } }
+</style>

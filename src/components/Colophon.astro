@@ -1,0 +1,43 @@
+---
+import Placeholder from './Placeholder.astro';
+import { site, privacyHref } from '../data/site';
+const year = new Date().getFullYear();
+const privacy = privacyHref(import.meta.env.BASE_URL);
+---
+<footer class="colophon">
+  <div class="grid">
+    <div class="col-row c-full ui">
+      <p class="col-name"><span class="smallcaps">{site.name}</span></p>
+      <ul class="col-links">
+        <li><a href={site.instagram.url} rel="me noopener" target="_blank">Instagram {site.instagram.handle}<span class="sr-only"> (opens in a new tab)</span></a></li>
+        <li>{site.contactEmail ? <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> : <Placeholder label="contact email" />}</li>
+        <li>{site.phone ? <a href={`tel:${site.phone.replace(/[^+\d]/g, '')}`}>{site.phone}</a> : <Placeholder label="phone number" />}</li>
+        <li><a href={privacy}>Privacy policy</a></li>
+      </ul>
+      <p class="col-set">
+        © {year} {site.name}. Set in Literata, by TypeTogether, and Atkinson Hyperlegible Next, by
+        the Braille Institute. The drawing behind the page follows Archimedes, <i>Measurement of
+        a Circle</i>, Proposition 3.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .colophon { padding-block: calc(var(--u) * 6) calc(var(--u) * 8); }
+  .col-row {
+    display: grid;
+    gap: 14px 32px;
+    padding-top: calc(var(--u) * 3);
+    border-top: 1px solid var(--hairline);
+    font-size: var(--s-14);
+    line-height: 21px;
+    color: var(--graphite);
+  }
+  @media (min-width: 768px) { .col-row { grid-template-columns: auto 1fr; } .col-set { grid-column: 1 / -1; } }
+  .col-name { color: var(--ink); font-family: var(--f-text); font-size: var(--s-16); }
+  .col-links { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+  @media (min-width: 768px) { .col-links { justify-content: flex-end; } }
+  .col-links a { color: var(--ink); }
+  .col-set { max-width: 44em; font-family: var(--f-text); font-style: italic; font-variant-numeric: oldstyle-nums; }
+</style>

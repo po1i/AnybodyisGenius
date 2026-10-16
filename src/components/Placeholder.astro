@@ -1,0 +1,24 @@
+---
+// Visible marker for anything the owner still has to supply.
+interface Props { label: string }
+const { label } = Astro.props;
+---
+<style>
+  .ph {
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: baseline;
+    line-height: 1.35;
+    padding: 0 0.35em;
+    border: 1px dashed var(--control);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--graphite);
+    font-family: var(--f-ui);
+    font-size: 0.78em;
+    font-style: normal;
+    font-variant: normal;
+    letter-spacing: 0;
+  }
+</style>
+<mark class="ph" title="Placeholder: replace before launch">[[PLACEHOLDER: {label}]]</mark>
