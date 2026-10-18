@@ -18,10 +18,10 @@
 export type Provider = 'mock' | 'loops' | 'kit';
 
 export const signupConfig = {
-  provider: 'mock' as Provider,
+  provider: 'loops' as Provider,
   doubleOptIn: false,
   loops: {
-    formId: '', // [[PLACEHOLDER: Loops form endpoint]]
+    formId: 'https://app.loops.so/api/newsletter-form/cmvdzawyj00dz0jujo55ap0lx',
     source: 'early-access-page',
     mailingLists: '', // optional: comma-separated IDs of public mailing lists
   },

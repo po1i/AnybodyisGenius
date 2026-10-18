@@ -112,7 +112,8 @@ function setLoading(form: HTMLFormElement, on: boolean) {
 
 for (const form of forms) {
   const input = form.querySelector<HTMLInputElement>('input[type="email"]')!;
-  const trap = form.querySelector<HTMLInputElement>('input[name="company"]');
+  // unnamed, so a no-JS post to the provider never carries it
+  const trap = form.querySelector<HTMLInputElement>('input[data-hp]');
   let attempted = false;
 
   const box = form.closest<HTMLElement>('[data-signup-box]')!;

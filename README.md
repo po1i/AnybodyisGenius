@@ -13,8 +13,13 @@ npm run build      # outputs dist/
 
 ## Connect the email list (Loops)
 
-Until this is done the forms run in **test mode**: they look like they work, but no address is
-saved anywhere.
+**Connected.** The forms post to the Loops form set in `src/data/signup.config.ts`. Set
+`provider` to `'mock'` there to go back to test mode (nothing is sent; addresses containing `fail`
+or `busy` simulate errors).
+
+The Loops account was set up with a placeholder sending domain, so Loops can store signups but
+can't send email yet. Keep double opt-in **off** in Loops until a real domain is verified;
+otherwise every signup waits as *Pending* for a confirmation email that can't be sent.
 
 **What to send Claude (or do yourself):** the Loops **Form Endpoint**, a URL like
 `https://app.loops.so/api/newsletter-form/abc123`. It's public, so it's safe to paste in chat. Never
@@ -65,7 +70,7 @@ address containing `fail` (network error) or `busy` (rate limit).
 | Phone number | `phone` in `src/data/site.ts` (footer) |
 | Final privacy policy | Replace the draft in `src/pages/privacy.astro`, or point `privacyUrl` at a hosted policy |
 | Policy date | `src/pages/privacy.astro` (the provider name fills in from the signup config) |
-| Loops Form Endpoint; double opt-in once you have a domain | `src/data/signup.config.ts` (see above) |
+| Real sending domain in Loops, then double opt-in | Loops **Settings > Domain**, then `src/data/signup.config.ts` (see above) |
 | Confirm the email promise | The page promises one email at invitation time and at most one short note a month before it, and says addresses are never sold or shared with advertisers. Change the copy if that isn't right. |
 | Social preview image | Optional: add `og:image` in `src/layouts/Base.astro` |
 
