@@ -55,8 +55,12 @@ address containing `fail` (network error) or `busy` (rate limit).
 
 ## Edit content
 
-- Business facts and placeholders: `src/data/site.ts` (launch date, logo, contact email, phone,
-  Instagram, privacy URL). Any `null` value shows a dashed `[[PLACEHOLDER: …]]` tag on the page.
+- Business facts: `src/data/site.ts` (launch date, logo, contact email, phone, Instagram, privacy
+  URL and policy date). While you work (`npm run dev`), any `null` value shows a dashed
+  `[[PLACEHOLDER: …]]` tag so nothing is forgotten. The published site never shows the tags; it
+  falls back to wording that is true without the missing fact ("Early-access list open", "We
+  haven't set a date yet", no footer email, Instagram as the privacy contact). To see the tags in
+  a production build, build with `PUBLIC_PLACEHOLDERS=1`.
 - The demo text, figure captions and margin notes: `src/data/demo.ts`.
 - Section copy: the components in `src/components/`.
 
@@ -66,13 +70,13 @@ address containing `fail` (network error) or `busy` (rate limit).
 | --- | --- |
 | Logo (SVG preferred) | Add to `public/`, set `logo` in `src/data/site.ts` |
 | Launch date | `launchDate` in `src/data/site.ts` (appears in the header and FAQ) |
-| Contact email | `contactEmail` in `src/data/site.ts` (footer and privacy page) |
+| Contact email (any inbox you check; no domain needed) | `contactEmail` in `src/data/site.ts`. It appears in the footer and becomes the privacy page's deletion contact, which is Instagram until then |
 | Phone number | `phone` in `src/data/site.ts` (footer) |
 | Final privacy policy | Replace the draft in `src/pages/privacy.astro`, or point `privacyUrl` at a hosted policy |
-| Policy date | `src/pages/privacy.astro` (the provider name fills in from the signup config) |
+| Policy date | `policyUpdated` in `src/data/site.ts`; change it whenever the policy text changes (the provider name fills in from the signup config) |
 | Real sending domain in Loops, then double opt-in | Loops **Settings > Domain**, then `src/data/signup.config.ts` (see above) |
 | Confirm the email promise | The page promises one email at invitation time and at most one short note a month before it, and says addresses are never sold or shared with advertisers. Change the copy if that isn't right. |
-| Social preview image | Optional: add `og:image` in `src/layouts/Base.astro` |
+| Social preview image | Done: `public/og.png` (text and layout in `scripts/og/og.html`). After changing the headline, re-render it and the icons with `PLAYWRIGHT=/path/to/playwright/index.mjs node scripts/og/render.mjs` |
 
 ## Deploy
 
@@ -83,6 +87,12 @@ Every push to `main` builds the site and publishes it with GitHub Pages, using t
   **GitHub Actions**.
 - Custom domain: add it under **Settings > Pages**, then in the workflow set `SITE_BASE` to `/`
   and `SITE_URL` to the domain (for example `https://anybodyisgenius.com`).
+
+## After a signup
+
+The success message offers "Share with a friend": the phone's or computer's share sheet where
+there is one, otherwise it copies the page's address (`src/scripts/share.ts`). There are no counts
+or referral tracking. Missing pages show `src/pages/404.astro`.
 
 ## Motion and the circle drawings
 

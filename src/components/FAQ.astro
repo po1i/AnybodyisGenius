@@ -1,6 +1,6 @@
 ---
 import Placeholder from './Placeholder.astro';
-import { site, privacyHref } from '../data/site';
+import { site, privacyHref, showPlaceholders } from '../data/site';
 import { signupConfig } from '../data/signup.config';
 const privacy = privacyHref(import.meta.env.BASE_URL);
 ---
@@ -36,8 +36,10 @@ const privacy = privacyHref(import.meta.env.BASE_URL);
       <div data-reveal>
         <dt>When does it launch?</dt>
         <dd>
-          Early access opens {site.launchDate ?? <Placeholder label="launch date" />}. People on
-          the list get the first invitations.
+          {site.launchDate
+            ? `Early access opens ${site.launchDate}.`
+            : showPlaceholders ? <Fragment>Early access opens <Placeholder label="launch date" />.</Fragment> : 'We haven’t set a date yet.'}
+          People on the list hear first and get the first invitations.
         </dd>
       </div>
       <div data-reveal>

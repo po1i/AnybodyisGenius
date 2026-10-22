@@ -1,6 +1,6 @@
 ---
 import Placeholder from './Placeholder.astro';
-import { site, privacyHref } from '../data/site';
+import { site, showPlaceholders, privacyHref } from '../data/site';
 const year = new Date().getFullYear();
 const privacy = privacyHref(import.meta.env.BASE_URL);
 ---
@@ -10,8 +10,12 @@ const privacy = privacyHref(import.meta.env.BASE_URL);
       <p class="col-name"><span class="smallcaps">{site.name}</span></p>
       <ul class="col-links">
         <li><a href={site.instagram.url} rel="me noopener" target="_blank">Instagram {site.instagram.handle}<span class="sr-only"> (opens in a new tab)</span></a></li>
-        <li>{site.contactEmail ? <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> : <Placeholder label="contact email" />}</li>
-        <li>{site.phone ? <a href={`tel:${site.phone.replace(/[^+\d]/g, '')}`}>{site.phone}</a> : <Placeholder label="phone number" />}</li>
+        {site.contactEmail
+          ? <li><a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a></li>
+          : showPlaceholders && <li><Placeholder label="contact email" /></li>}
+        {site.phone
+          ? <li><a href={`tel:${site.phone.replace(/[^+\d]/g, '')}`}>{site.phone}</a></li>
+          : showPlaceholders && <li><Placeholder label="phone number" /></li>}
         <li><a href={privacy}>Privacy policy</a></li>
       </ul>
       <p class="col-set">

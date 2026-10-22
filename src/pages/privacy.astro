@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Masthead from '../components/Masthead.astro';
 import Colophon from '../components/Colophon.astro';
 import Placeholder from '../components/Placeholder.astro';
-import { site } from '../data/site';
+import { site, showPlaceholders } from '../data/site';
 import { signupConfig } from '../data/signup.config';
 const base = import.meta.env.BASE_URL;
 const providerName = { loops: 'Loops (loops.so)', kit: 'Kit (kit.com)', mock: null }[signupConfig.provider];
@@ -15,14 +15,20 @@ const providerName = { loops: 'Loops (loops.so)', kit: 'Kit (kit.com)', mock: nu
     <div class="grid">
       <p class="c-text"><a class="back ui" href={base}>Back to {site.name}</a></p>
       <h1 class="display h2 c-text priv-title">Privacy policy</h1>
-      <p class="c-text priv-flag"><Placeholder label="final privacy policy, reviewed before launch. The text below is a plain-language draft that matches how this page works today." /></p>
+      <p class="c-text priv-flag">
+        {showPlaceholders
+          ? <Placeholder label="final privacy policy, reviewed before launch. The text below is a plain-language draft that matches how this page works today." />
+          : <span class="priv-lede">A plain-language account of how this page handles your email address.</span>}
+      </p>
       <div class="prose c-text priv-body">
         <p><strong>What we collect.</strong> Your email address, if you join the early-access list. Nothing else is asked for.</p>
         <p><strong>What we use it for.</strong> To tell you about early access: {signupConfig.doubleOptIn ? 'a one-time confirmation email, ' : ''}one email when your invitation is ready, and at most one short note a month before then. We don’t sell your address or share it with advertisers.</p>
-        <p><strong>Who handles it.</strong> Addresses are stored by our email provider, {providerName ?? <Placeholder label="email provider, e.g. Loops" />}, which sends the emails on our behalf.</p>
+        <p><strong>Who handles it.</strong> Addresses are stored by our email provider{providerName ? `, ${providerName},` : showPlaceholders ? <Fragment>, <Placeholder label="email provider, e.g. Loops" />,</Fragment> : ''} which sends the emails on our behalf.</p>
         <p><strong>On your device.</strong> This site sets no cookies and runs no analytics or ad trackers. After you sign up, your browser keeps a note of the address in its local storage on this device only, so the form can tell you if you’ve already signed up from this device.</p>
-        <p><strong>Your choices.</strong> Every email has an unsubscribe link. To have your address deleted, write to {site.contactEmail ?? <Placeholder label="contact email" />}.</p>
-        <p><strong>Changes.</strong> If this policy changes, the date below changes too. Last updated <Placeholder label="date" />.</p>
+        <p><strong>Your choices.</strong> Every email has an unsubscribe link. To have your address deleted, {site.contactEmail
+          ? <Fragment>write to <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.</Fragment>
+          : <Fragment>message us on Instagram, <a href={site.instagram.url} rel="noopener">{site.instagram.handle}</a>.</Fragment>}</p>
+        <p><strong>Changes.</strong> If this policy changes, the date below changes too. Last updated {site.policyUpdated}.</p>
       </div>
     </div>
   </main>
@@ -33,6 +39,7 @@ const providerName = { loops: 'Loops (loops.so)', kit: 'Kit (kit.com)', mock: nu
   .back { font-size: var(--s-16); }
   .priv-title { margin-top: calc(var(--u) * 4); }
   .priv-flag { margin-top: calc(var(--u) * 2); font-size: var(--s-16); }
+  .priv-lede { font-style: italic; color: var(--graphite); }
   .priv-body { margin-top: calc(var(--u) * 4); }
   .priv-body strong { font-weight: 600; }
 </style>

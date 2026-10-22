@@ -85,6 +85,14 @@ if (pill && dialog && typeof dialog.showModal === 'function') {
       lock(false);
       update();
       if (pill.classList.contains('is-shown')) pill.focus({ preventScroll: true });
+      else if (document.activeElement === pill) {
+        // a signup retired the pill while the dialog was open: keep the reader's
+        // place by focusing the heading of the section on screen (the retired
+        // pill ignores the pointer, so this finds the section under it)
+        const sheet = document.elementFromPoint(innerWidth / 2, innerHeight / 2)?.closest<HTMLElement>('[data-sheet], section');
+        const h = sheet?.querySelector<HTMLElement>('h1, h2');
+        if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
+      }
     };
     const pillWillShow = (pastHero || heroCovered) && !nearFinal && !done();
     if (how === 'morph' && canMorph() && pillWillShow && !isPhone()) {

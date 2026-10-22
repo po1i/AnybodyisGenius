@@ -57,6 +57,13 @@ const privacy = privacyHref(import.meta.env.BASE_URL);
     <p class="done-title" tabindex="-1" data-done-title>You’re on the list.</p>
     <p class="done-body" data-done-body></p>
     <p class="done-stamp smallcaps" data-done-stamp></p>
+    <p class="done-share" data-share hidden>
+      <button class="share-btn ui" type="button" data-share-btn>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 10V2.5M5 5.5l3-3 3 3M5.5 7.5H3v6h10v-6h-2.5" fill="none" stroke="currentColor" stroke-width="1.3" /></svg>
+        <span>Share with a friend</span>
+      </button>
+      <span class="share-msg ui" role="status" data-share-msg></span>
+    </p>
   </div>
 </div>
 
@@ -183,6 +190,31 @@ const privacy = privacyHref(import.meta.env.BASE_URL);
     [data-state='done'] .done-stamp { animation: fade 0.6s linear 0.9s both; }
   }
   @keyframes rule { from { transform: scaleX(0); } }
+
+  /* after a signup: pass the page on (scripts/share.ts shows it where sharing or copying works) */
+  .done-share { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 6px; }
+  .done-share[hidden] { display: none; }
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font-size: var(--s-16);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+  .share-btn:hover { text-decoration-thickness: 2px; }
+  .share-btn svg { flex: none; }
+  .share-msg { font-size: var(--s-14); color: var(--graphite); }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-state='done'] .done-share { animation: fade 0.6s linear 1.1s both; }
+  }
   [data-state='done'] .signup-form { visibility: hidden; }
   @media (prefers-reduced-motion: no-preference) {
     [data-state='done'] .signup-done { animation: resolve 0.52s var(--resolve) both; }

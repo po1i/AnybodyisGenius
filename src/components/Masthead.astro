@@ -1,6 +1,6 @@
 ---
 import Placeholder from './Placeholder.astro';
-import { site } from '../data/site';
+import { site, showPlaceholders } from '../data/site';
 const base = import.meta.env.BASE_URL;
 ---
 <header class="masthead">
@@ -9,10 +9,12 @@ const base = import.meta.env.BASE_URL;
       <p class="wordmark">
         {site.logo ? <img src={`${base}${site.logo}`} alt="" height="20" /> : null}
         <span class="smallcaps">{site.name}</span>
-        {!site.logo && <Placeholder label="logo" />}
+        {!site.logo && showPlaceholders && <Placeholder label="logo" />}
       </p>
       <p class="mast-date smallcaps">
-        Early access opens {site.launchDate ?? <Placeholder label="launch date" />}
+        {site.launchDate
+          ? `Early access opens ${site.launchDate}`
+          : showPlaceholders ? <Fragment>Early access opens <Placeholder label="launch date" /></Fragment> : 'Early-access list open'}
       </p>
     </div>
   </div>

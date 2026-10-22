@@ -74,4 +74,8 @@ import { site } from '../data/site';
       max-width: 280px;
     }
   }
+  /* forced colors paint a backplate behind each word box; keep words inline there */
+  @media (forced-colors: active) {
+    :global(html.motion) .hero-title .w { display: inline; animation: none; }
+  }
 </style>

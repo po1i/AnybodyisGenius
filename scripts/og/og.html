@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- The link-preview image (public/og.png, 1200x630). Rendered by render.mjs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: 'Literata Display'; src: url('../../src/assets/fonts/literata-display.woff2') format('woff2'); font-weight: 360; }
+  @font-face { font-family: 'Literata'; src: url('../../src/assets/fonts/literata-text.woff2') format('woff2'); font-weight: 400; }
+  @font-face { font-family: 'Literata'; src: url('../../src/assets/fonts/literata-text-italic.woff2') format('woff2'); font-weight: 400; font-style: italic; }
+  :root { --paper: #f7f4ee; --plate: #efebe3; --ink: #1c1b18; --graphite: #5c574e; --control: #857e72; --hairline: #d6d0c4; --rubric: #a8321c; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    position: relative;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Literata', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mast {
+    position: absolute; left: 80px; right: 80px; top: 64px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 18px; border-bottom: 1px solid var(--hairline);
+    font-variant-caps: all-small-caps; letter-spacing: 0.08em; font-size: 26px;
+  }
+  .mast span:last-child { color: var(--graphite); font-size: 22px; }
+  h1 {
+    position: absolute; left: 78px; top: 200px; width: 720px;
+    font-family: 'Literata Display', Georgia, serif; font-weight: 360;
+    font-size: 96px; line-height: 102px; letter-spacing: -0.018em;
+    font-feature-settings: 'lnum';
+    white-space: nowrap;
+  }
+  p {
+    position: absolute; left: 82px; top: 436px; width: 620px;
+    font-size: 31px; line-height: 44px; color: var(--graphite);
+  }
+  svg { position: absolute; right: 64px; top: 150px; width: 400px; height: 400px; overflow: visible; }
+</style>
+</head>
+<body>
+  <div class="mast"><span>Anybody Is Genius</span><span>Early access</span></div>
+  <h1>Get 1% smarter,<br />every day.</h1>
+  <p>An AI teacher that starts where you are.</p>
+  <svg viewBox="-1.25 -1.25 2.5 2.5" id="fig"></svg>
+  <script>
+    // Archimedes' hexagons, as on the page (src/data/archimedes.ts): inner vertices at 30° + 60°k
+    const svg = document.getElementById('fig');
+    const T0 = Math.PI / 6, n = 6;
+    const pts = (r, off) => Array.from({ length: n }, (_, k) => {
+      const a = T0 + (2 * Math.PI * k) / n + off;
+      return [r * Math.cos(a), -r * Math.sin(a)];
+    });
+    const inner = pts(1, 0), outer = pts(1 / Math.cos(Math.PI / n), Math.PI / n);
+    const d = (p) => 'M' + p.map(([x, y]) => `${x.toFixed(4)} ${y.toFixed(4)}`).join('L') + 'Z';
+    const ns = 'http://www.w3.org/2000/svg';
+    const add = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); svg.append(e); return e; };
+    add('path', { d: d(outer) + d(inner), 'fill-rule': 'evenodd', fill: '#efebe3' });
+    add('circle', { cx: 0, cy: 0, r: 1, fill: 'none', stroke: '#857e72', 'stroke-width': 0.0075, 'stroke-dasharray': '0.012 0.024' });
+    add('path', { d: d(inner) + d(outer), fill: 'none', stroke: 'rgba(28,27,24,0.5)', 'stroke-width': 0.006 });
+    // the closing arc, traced in red from the top, as after a signup
+    const a0 = -Math.PI / 2, a1 = a0 + 2 * Math.PI * 0.38;
+    add('path', { d: `M ${Math.cos(a0)} ${Math.sin(a0)} A 1 1 0 0 1 ${Math.cos(a1).toFixed(4)} ${Math.sin(a1).toFixed(4)}`, fill: 'none', stroke: '#a8321c', 'stroke-width': 0.011, 'stroke-linecap': 'round' });
+  </script>
+</body>
+</html>

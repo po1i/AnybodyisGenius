@@ -18,7 +18,17 @@ export const site = {
   instagram: { handle: '@wpo1i', url: 'https://www.instagram.com/wpo1i/' },
   /** The privacy policy: a page in this site (e.g. 'privacy.html') or the full https:// address of a hosted policy. */
   privacyUrl: 'privacy.html',
+  /** When the privacy policy text last changed. Update it whenever you edit the policy. */
+  policyUpdated: 'October 22, 2026',
 } as const;
+
+/**
+ * [[PLACEHOLDER]] tags show while you work (npm run dev) so nothing is
+ * forgotten. The published site never shows them: anything still null falls
+ * back to wording that is true without it (no date, no email, no logo).
+ * Set PUBLIC_PLACEHOLDERS=1 to see them in a production build too.
+ */
+export const showPlaceholders = import.meta.env.DEV || import.meta.env.PUBLIC_PLACEHOLDERS === '1';
 
 /** Link to the privacy policy. Pages in this site get the base path; full addresses are used as given. */
 export const privacyHref = (base: string): string =>
